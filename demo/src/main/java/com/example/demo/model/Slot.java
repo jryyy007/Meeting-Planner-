@@ -2,16 +2,19 @@ package com.example.demo.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
 import java.time.LocalDateTime;
 
-@Data
 @Entity
-@Table(name = "slots")
+@Data
 public class Slot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime start;
-    private LocalDateTime end;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+
+    @OneToOne(mappedBy = "slot")
+    private Reservation reservation;
 }
