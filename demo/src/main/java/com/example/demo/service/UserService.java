@@ -45,6 +45,9 @@ public class UserService {
         User user = userRepository.findById(userId).orElse(null);
         if (user != null) {
             user.setName(userDetails.getName());
+            user.setEmail(userDetails.getEmail());
+            user.setPassword(userDetails.getPassword());
+
             // Update other fields as needed
             return userRepository.save(user);
         } else {
@@ -64,6 +67,4 @@ public class UserService {
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
-
-
 }

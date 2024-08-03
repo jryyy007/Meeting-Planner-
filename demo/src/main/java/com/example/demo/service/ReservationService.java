@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.IntPredicate;
 
 @Service
 @AllArgsConstructor
@@ -30,8 +31,9 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
-    public void cancelReservation(Long reservationId) {
+    public IntPredicate cancelReservation(Long reservationId) {
         reservationRepository.deleteById(reservationId);
+        return null;
     }
 
     public Reservation updateReservation(Long reservationId, Reservation reservationDetails) {

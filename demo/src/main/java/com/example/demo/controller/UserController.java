@@ -25,7 +25,8 @@ public class UserController {
     public User createUser(@RequestBody UserRequest userRequest) {
         User user = new User();
         user.setName(userRequest.getName());
-        // Set other fields as needed
+        user.setEmail(userRequest.getEmail());
+        user.setPassword(userRequest.getPassword());
         return userService.saveUser(user);
     }
 
@@ -33,7 +34,8 @@ public class UserController {
     public User updateUser(@PathVariable Long userId, @RequestBody UserRequest userRequest) {
         User userDetails = new User();
         userDetails.setName(userRequest.getName());
-        // Set other fields as needed
+        userDetails.setEmail(userRequest.getEmail());
+        userDetails.setPassword(userRequest.getPassword());
         return userService.updateUser(userId, userDetails);
     }
 
