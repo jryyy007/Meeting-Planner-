@@ -2,40 +2,42 @@ package com.example.demo.service;
 
 import com.example.demo.model.Slot;
 import com.example.demo.repository.SlotRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@Transactional
 public class SlotService {
 
-    @Autowired
-    private SlotRepository slotRepository;
+    private final SlotRepository slotRepository;
+
+    public SlotService(SlotRepository slotRepository) {
+        this.slotRepository = slotRepository;
+    }
 
     public Slot saveSlot(Slot slot) {
         return slotRepository.save(slot);
     }
 
     public Slot updateSlot(Long slotId, Slot slotDetails) {
-        Slot slot = slotRepository.findById(slotId).orElse(null);
-        if (slot != null) {
-            slot.setStartTime(slotDetails.getStartTime());
-            slot.setEndTime(slotDetails.getEndTime());
-            // Update other fields as needed
-            return slotRepository.save(slot);
-        } else {
-            return null;
-        }
+        return slotRepository.findById(slotId)
+                .map(slot -> {
+                    slot.setStartTime(slotDetails.getStartTime());
+                    slot.setEndTime(slotDetails.getEndTime());
+                    return slotRepository.save(slot);
+                })
+                .orElseThrow(() -> new IllegalArgumentException("Slot not found with id: " + slotId));
     }
 
     public void deleteSlot(Long slotId) {
         slotRepository.deleteById(slotId);
     }
 
-    public Optional<Slot> getSlot(Long slotId) {
-        return slotRepository.findById(slotId);
+    public Slot getSlot(Long slotId) {
+        return slotRepository.findById(slotId)
+                .orElseThrow(() -> new IllegalArgumentException("Slot not found with id: " + slotId));
     }
 
     public List<Slot> getAllSlots() {
@@ -43,6 +45,7 @@ public class SlotService {
     }
 
     public Slot getDetails(Long slotId) {
-        return slotRepository.findById(slotId).orElse(null);
+        return slotRepository.findById(slotId)
+                .orElseThrow(() -> new IllegalArgumentException("Slot not found with id: " + slotId));
     }
 }

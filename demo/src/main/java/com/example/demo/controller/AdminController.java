@@ -5,7 +5,8 @@ import com.example.demo.model.Admin;
 import com.example.demo.model.Room;
 import com.example.demo.model.Equipment;
 import com.example.demo.service.AdminService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,51 +15,57 @@ import java.util.List;
 @RequestMapping("/api/admins")
 public class AdminController {
 
-    @Autowired
-    private AdminService adminService;
+    private final AdminService adminService;
+
+    public AdminController(AdminService adminService) {
+        this.adminService = adminService;
+    }
 
     @PostMapping
-    public Admin createAdmin(@RequestBody Admin admin) {
-        return adminService.saveAdmin(admin);
+    public ResponseEntity<Admin> createAdmin(@RequestBody Admin admin) {
+        Admin savedAdmin = adminService.saveAdmin(admin);
+        return new ResponseEntity<>(savedAdmin, HttpStatus.CREATED);
     }
 
     @PutMapping("/{adminId}")
-    public Admin updateAdmin(@PathVariable Long adminId, @RequestBody Admin adminDetails) {
-        return adminService.updateAdmin(adminId, adminDetails);
+    public ResponseEntity<Admin> updateAdmin(@PathVariable Long adminId, @RequestBody Admin adminDetails) {
+        Admin updatedAdmin = adminService.updateAdmin(adminId, adminDetails);
+        return ResponseEntity.ok(updatedAdmin);
     }
 
     @DeleteMapping("/{adminId}")
-    public void deleteAdmin(@PathVariable Long adminId) {
+    public ResponseEntity<Void> deleteAdmin(@PathVariable Long adminId) {
         adminService.deleteAdmin(adminId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{adminId}")
-    public Admin getAdmin(@PathVariable Long adminId) {
-        return adminService.getAdminDetails(adminId);
+    public ResponseEntity<Admin> getAdmin(@PathVariable Long adminId) {
+        Admin admin = adminService.getAdminDetails(adminId);
+        return ResponseEntity.ok(admin);
     }
 
     @GetMapping
-    public List<Admin> getAllAdmins() {
-        return adminService.getAllAdmins();
+    public ResponseEntity<List<Admin>> getAllAdmins() {
+        List<Admin> admins = adminService.getAllAdmins();
+        return ResponseEntity.ok(admins);
     }
 
     @PostMapping("/room")
-    public void createRoom(@RequestBody Room room) {
-        adminService.createRoom(room);
+    public ResponseEntity<Room> createRoom(@RequestBody Room room) {
+        Room savedRoom = adminService.createRoom(room);
+        return new ResponseEntity<>(savedRoom, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/room")
-    public void deleteRoom(@RequestBody Room room) {
-        adminService.deleteRoom(room);
+    @DeleteMapping("/room/{roomId}")
+    public ResponseEntity<Void> deleteRoom(@PathVariable Long roomId) {
+        adminService.deleteRoom(roomId);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/equipment")
-    public void manageEquipment(@RequestBody ManageEquipmentRequest request) {
-        Long roomId = request.getRoomId();
-        Equipment equipment = request.getEquipment();
-        Room room = adminService.getRoomById(roomId);
-        if (room != null) {
-            adminService.manageEquipment(room, equipment);
-        }
+    public ResponseEntity<Void> manageEquipment(@RequestBody ManageEquipmentRequest request) {
+        adminService.manageEquipment(request.getRoomId(), request.getEquipment());
+        return ResponseEntity.ok().build();
     }
 }

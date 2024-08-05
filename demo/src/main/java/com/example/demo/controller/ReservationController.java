@@ -2,55 +2,59 @@ package com.example.demo.controller;
 
 import com.example.demo.model.*;
 import com.example.demo.service.*;
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/reservations")
-@AllArgsConstructor
 public class ReservationController {
 
-    @Autowired
-    private ReservationService reservationService;
+    private final ReservationService reservationService;
+    private final RoomService roomService;
+    private final UserService userService;
+    private final SlotService slotService;
 
-    @Autowired
-    private RoomService roomService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private SlotService slotService;
+    public ReservationController(ReservationService reservationService, RoomService roomService, UserService userService, SlotService slotService) {
+        this.reservationService = reservationService;
+        this.roomService = roomService;
+        this.userService = userService;
+        this.slotService = slotService;
+    }
 
     @PostMapping
-    public Reservation reserveRoom(@RequestParam Long userId, @RequestParam Long roomId, @RequestParam Long slotId,
-                                   @RequestParam MeetingType type, @RequestParam int numberOfPeople) {
+    public ResponseEntity<Reservation> reserveRoom(@RequestParam Long userId, @RequestParam Long roomId, @RequestParam Long slotId,
+                                                   @RequestParam MeetingType type, @RequestParam int numberOfPeople) {
         User user = userService.getUserDetails(userId);
         Room room = roomService.getDetails(roomId);
         Slot slot = slotService.getDetails(slotId);
-        return reservationService.reserveRoom(user, room, slot, type, numberOfPeople);
+        Reservation reservation = reservationService.reserveRoom(user, room, slot, type, numberOfPeople);
+        return new ResponseEntity<>(reservation, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{reservationId}")
-    public void cancelReservation(@PathVariable Long reservationId) {
+    public ResponseEntity<Void> cancelReservation(@PathVariable Long reservationId) {
         reservationService.cancelReservation(reservationId);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{reservationId}")
-    public Reservation updateReservation(@PathVariable Long reservationId, @RequestBody Reservation reservationDetails) {
-        return reservationService.updateReservation(reservationId, reservationDetails);
+    public ResponseEntity<Reservation> updateReservation(@PathVariable Long reservationId, @RequestBody Reservation reservationDetails) {
+        Reservation updatedReservation = reservationService.updateReservation(reservationId, reservationDetails);
+        return ResponseEntity.ok(updatedReservation);
     }
 
     @GetMapping("/{reservationId}")
-    public Reservation getReservation(@PathVariable Long reservationId) {
-        return reservationService.getReservationDetails(reservationId);
+    public ResponseEntity<Reservation> getReservation(@PathVariable Long reservationId) {
+        Reservation reservation = reservationService.getReservationDetails(reservationId);
+        return ResponseEntity.ok(reservation);
     }
 
     @GetMapping
-    public List<Reservation> getAllReservations() {
-        return reservationService.getAllReservations();
+    public ResponseEntity<List<Reservation>> getAllReservations() {
+        List<Reservation> reservations = reservationService.getAllReservations();
+        return ResponseEntity.ok(reservations);
     }
 }

@@ -5,38 +5,37 @@ import com.example.demo.model.Slot;
 import com.example.demo.repository.RoomRepository;
 import com.example.demo.repository.ReservationRepository;
 import com.example.demo.model.Reservation;
-import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
-@AllArgsConstructor
+@Transactional
 public class RoomService {
 
-    @Autowired
-    private RoomRepository roomRepository;
+    private final RoomRepository roomRepository;
+    private final ReservationRepository reservationRepository;
 
-    @Autowired
-    private ReservationRepository reservationRepository;
+    public RoomService(RoomRepository roomRepository, ReservationRepository reservationRepository) {
+        this.roomRepository = roomRepository;
+        this.reservationRepository = reservationRepository;
+    }
 
     public Room saveRoom(Room room) {
         return roomRepository.save(room);
     }
 
     public Room updateRoom(Long roomId, Room roomDetails) {
-        Room room = roomRepository.findById(roomId).orElse(null);
-        if (room != null) {
-            room.setName(roomDetails.getName());
-            room.setCapacity(roomDetails.getCapacity());
-            room.setEquipment(roomDetails.getEquipment());
-            return roomRepository.save(room);
-        } else {
-            return null;
-        }
+        return roomRepository.findById(roomId)
+                .map(room -> {
+                    room.setName(roomDetails.getName());
+                    room.setCapacity(roomDetails.getCapacity());
+                    room.setEquipment(roomDetails.getEquipment());
+                    return roomRepository.save(room);
+                })
+                .orElseThrow(() -> new IllegalArgumentException("Room not found with id: " + roomId));
     }
 
     public void deleteRoom(Long roomId) {
@@ -55,8 +54,8 @@ public class RoomService {
     }
 
     public Room getDetails(Long roomId) {
-        Optional<Room> room = roomRepository.findById(roomId);
-        return room.orElse(null);
+        return roomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("Room not found with id: " + roomId));
     }
 
     public List<Room> getAllRooms() {

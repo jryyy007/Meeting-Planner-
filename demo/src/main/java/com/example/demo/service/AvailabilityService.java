@@ -2,32 +2,34 @@ package com.example.demo.service;
 
 import com.example.demo.model.Availability;
 import com.example.demo.repository.AvailabilityRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class AvailabilityService {
 
-    @Autowired
-    private AvailabilityRepository availabilityRepository;
+    private final AvailabilityRepository availabilityRepository;
+
+    public AvailabilityService(AvailabilityRepository availabilityRepository) {
+        this.availabilityRepository = availabilityRepository;
+    }
 
     public Availability saveAvailability(Availability availability) {
         return availabilityRepository.save(availability);
     }
 
     public Availability updateAvailability(Long availabilityId, Availability availabilityDetails) {
-        Availability availability = availabilityRepository.findById(availabilityId).orElse(null);
-        if (availability != null) {
-            availability.setRoom(availabilityDetails.getRoom());
-            availability.setSlot(availabilityDetails.getSlot());
-            // Update other fields as needed
-            return availabilityRepository.save(availability);
-        } else {
-            return null;
-        }
+        return availabilityRepository.findById(availabilityId)
+                .map(availability -> {
+                    availability.setRoom(availabilityDetails.getRoom());
+                    availability.setSlot(availabilityDetails.getSlot());
+                    return availabilityRepository.save(availability);
+                })
+                .orElseThrow(() -> new IllegalArgumentException("Availability not found with id: " + availabilityId));
     }
 
     public void deleteAvailability(Long availabilityId) {
@@ -43,6 +45,7 @@ public class AvailabilityService {
     }
 
     public Availability getDetails(Long availabilityId) {
-        return availabilityRepository.findById(availabilityId).orElse(null);
+        return availabilityRepository.findById(availabilityId)
+                .orElseThrow(() -> new IllegalArgumentException("Availability not found with id: " + availabilityId));
     }
 }

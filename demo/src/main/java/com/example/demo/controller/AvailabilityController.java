@@ -2,7 +2,8 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Availability;
 import com.example.demo.service.AvailabilityService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,26 +12,33 @@ import java.util.List;
 @RequestMapping("/api/availabilities")
 public class AvailabilityController {
 
-    @Autowired
-    private AvailabilityService availabilityService;
+    private final AvailabilityService availabilityService;
+
+    public AvailabilityController(AvailabilityService availabilityService) {
+        this.availabilityService = availabilityService;
+    }
 
     @PostMapping
-    public Availability createAvailability(@RequestBody Availability availability) {
-        return availabilityService.saveAvailability(availability);
+    public ResponseEntity<Availability> createAvailability(@RequestBody Availability availability) {
+        Availability savedAvailability = availabilityService.saveAvailability(availability);
+        return new ResponseEntity<>(savedAvailability, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{availabilityId}")
-    public void deleteAvailability(@PathVariable Long availabilityId) {
+    public ResponseEntity<Void> deleteAvailability(@PathVariable Long availabilityId) {
         availabilityService.deleteAvailability(availabilityId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{availabilityId}")
-    public Availability getAvailability(@PathVariable Long availabilityId) {
-        return availabilityService.getDetails(availabilityId);
+    public ResponseEntity<Availability> getAvailability(@PathVariable Long availabilityId) {
+        Availability availability = availabilityService.getDetails(availabilityId);
+        return ResponseEntity.ok(availability);
     }
 
     @GetMapping
-    public List<Availability> getAllAvailabilities() {
-        return availabilityService.getAllAvailabilities();
+    public ResponseEntity<List<Availability>> getAllAvailabilities() {
+        List<Availability> availabilities = availabilityService.getAllAvailabilities();
+        return ResponseEntity.ok(availabilities);
     }
 }

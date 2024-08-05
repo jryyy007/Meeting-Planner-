@@ -77,9 +77,9 @@ public class UserServiceTest {
     @Transactional
     public void testSaveUser() {
         User testUser = new User();
-        testUser.setName("John Doe");
-        testUser.setEmail("john.doe@example.com");
-        testUser.setPassword("password");
+        testUser.setName("testUser");
+        testUser.setEmail("test.user@mail.com");
+        testUser.setPassword("testPassword");
 
         User createdUser = userService.saveUser(testUser);
 
