@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -33,8 +32,13 @@ public class UserService {
         return reservationService.reserveRoom(user, room, slot, type, numberOfPeople);
     }
 
-    public void cancelReservation(Reservation reservation) {
-        reservationService.cancelReservation(reservation.getId());
+    public void cancelReservation(Long reservationId) {
+        Reservation reservation = reservationService.getReservationDetails(reservationId);
+        if (reservation != null) {
+            reservationService.cancelReservation(reservationId);
+        } else {
+            throw new IllegalArgumentException("Reservation not found with id: " + reservationId);
+        }
     }
 
     public User saveUser(User user) {
