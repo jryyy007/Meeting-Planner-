@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.exception.SlotNotFoundException;
 import com.example.demo.model.Slot;
 import com.example.demo.repository.SlotRepository;
 import org.springframework.stereotype.Service;
@@ -37,7 +38,7 @@ public class SlotService {
 
     public Slot getSlot(Long slotId) {
         return slotRepository.findById(slotId)
-                .orElseThrow(() -> new IllegalArgumentException("Slot not found with id: " + slotId));
+                .orElseThrow(() -> new SlotNotFoundException(slotId));
     }
 
     public List<Slot> getAllSlots() {

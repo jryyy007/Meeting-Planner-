@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.exception.AvailabilityNotFoundException;
 import com.example.demo.model.Availability;
 import com.example.demo.service.AvailabilityService;
 import org.springframework.http.HttpStatus;
@@ -20,8 +21,14 @@ public class AvailabilityController {
 
     @PostMapping
     public ResponseEntity<Availability> createAvailability(@RequestBody Availability availability) {
-        Availability savedAvailability = availabilityService.saveAvailability(availability);
-        return new ResponseEntity<>(savedAvailability, HttpStatus.CREATED);
+        Availability createdAvailability = availabilityService.saveAvailability(availability);
+        return new ResponseEntity<>(createdAvailability, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{availabilityId}")
+    public ResponseEntity<Availability> updateAvailability(@PathVariable Long availabilityId, @RequestBody Availability availabilityDetails) {
+        Availability updatedAvailability = availabilityService.updateAvailability(availabilityId, availabilityDetails);
+        return ResponseEntity.ok(updatedAvailability);
     }
 
     @DeleteMapping("/{availabilityId}")
@@ -41,4 +48,10 @@ public class AvailabilityController {
         List<Availability> availabilities = availabilityService.getAllAvailabilities();
         return ResponseEntity.ok(availabilities);
     }
+
+    @ExceptionHandler(AvailabilityNotFoundException.class)
+    public ResponseEntity<String> handleAvailabilityNotFoundException(AvailabilityNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
 }
+// Compare this snippet from demo/src/main/java/com/example/demo/controller/EquipmentController.java:

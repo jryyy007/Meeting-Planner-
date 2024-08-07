@@ -1,5 +1,8 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.ReservationRequest;
+import com.example.demo.exception.SlotNotFoundException;
+import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.model.*;
 import com.example.demo.service.*;
 import org.springframework.http.HttpStatus;
@@ -25,12 +28,11 @@ public class ReservationController {
     }
 
     @PostMapping
-    public ResponseEntity<Reservation> reserveRoom(@RequestParam Long userId, @RequestParam Long roomId, @RequestParam Long slotId,
-                                                   @RequestParam MeetingType type, @RequestParam int numberOfPeople) {
-        User user = userService.getUserDetails(userId);
-        Room room = roomService.getDetails(roomId);
-        Slot slot = slotService.getDetails(slotId);
-        Reservation reservation = reservationService.reserveRoom(user, room, slot, type, numberOfPeople);
+    public ResponseEntity<Reservation> reserveRoom(@RequestBody ReservationRequest request) {
+        User user = userService.getUserDetails(request.getUserId());
+        Room room = roomService.getDetails(request.getRoomId());
+        Slot slot = slotService.getDetails(request.getSlotId());
+        Reservation reservation = reservationService.reserveRoom(user, room, slot, request.getType(), request.getNumberOfPeople());
         return new ResponseEntity<>(reservation, HttpStatus.CREATED);
     }
 
@@ -56,5 +58,15 @@ public class ReservationController {
     public ResponseEntity<List<Reservation>> getAllReservations() {
         List<Reservation> reservations = reservationService.getAllReservations();
         return ResponseEntity.ok(reservations);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<String> handleUserNotFoundException(UserNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(SlotNotFoundException.class)
+    public ResponseEntity<String> handleSlotNotFoundException(SlotNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 }

@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.exception.UserNotFoundException;
 import com.example.demo.model.Reservation;
 import com.example.demo.model.Room;
 import com.example.demo.model.Slot;
@@ -62,7 +63,7 @@ public class UserService {
 
     public User getUserDetails(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
     public List<User> getAllUsers() {
